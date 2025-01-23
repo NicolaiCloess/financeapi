@@ -1,0 +1,12 @@
+Routes
+
+./      404
+./assets    (Liste aller assets ohne Preise)                             
+    ./<asset_type>  (Liste aller assets inkl. Preis des Typs asset_type z.B. curr, crypto, stock, comm, metal)
+        ./<asset_symbol> (speziefisches asset inklusive Preis anhand vom Symbol bsp. AAPL, XAU, BTC)
+./commodities   (gibt Liste aller commodities aus, ohne Preis)
+./metals    (gibt Liste aller metals aus, ohne Preis)
+./cryptos   (gibt Liste aller cryptos aus, ohne Preis)
+./currencies    (gibt Liste aller currencies aus, ohne Preis)
+./stocks    (gibt Liste aller stocks aus, ohne Preis)
+./prices    (gibt Liste aller assets aus, inklusive Preis)
