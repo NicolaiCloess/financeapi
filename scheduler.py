@@ -146,6 +146,37 @@ def update_stocks():
         print(f"Ein Fehler ist aufgetreten: {e}")
 
 
+def update_commodities():
+    """
+    Ruft mithilfe von yfinance die aktuellen Commodity-Preise ab 
+    und aktualisiert die asset_prices-Tabelle in Supabase.
+    """
+    try:
+        # 1) Abrufen der aktuellen Commodity-Preise (Liste mit Dicts)
+        commodities = get_commodities_prices()
+        
+        # 2) Für jeden Eintrag in der Liste das passende asset_prices-Record updaten
+        for item in commodities:
+            ticker = item["ticker"]
+            name = item["name"]
+            price = item["price"]
+            print("Update Commodity:", item)
+
+            # Beispiel: Update in 'asset_prices' basierend auf "asset_symbol" = ticker
+            # Achtung: Passe 'asset_symbol' an, wenn deine Spalte anders heißt
+            response = supabase.table("asset_prices").update({
+                "price": price,
+                "date_time": datetime.datetime.utcnow().isoformat()
+            }).eq("asset_symbol", ticker).execute()
+
+            # Erfolg oder Fehler prüfen
+            if response.data:
+                print(f"{ticker} ({name}) erfolgreich aktualisiert: {price}")
+            else:
+                print(f"Fehler beim Aktualisieren von {ticker} ({name}): {response}")
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
 
 
 # Jobs hinzufügen
@@ -153,7 +184,7 @@ scheduler.add_job(update_crypto_prices, 'interval', seconds=2678) # ca. 44 Minut
 scheduler.add_job(update_metals_price, 'interval', seconds=13400)
 scheduler.add_job(update_currencies, 'interval', seconds=17300)  # 25 Anfragen / Tag
 scheduler.add_job(update_stocks, 'interval', seconds=60) # jede Minute 
-
+scheduler.add_job(update_commodities, 'interval', seconds=3)
 
 
 #scheduler.add_job(update_commodities, 'interval', seconds=10)

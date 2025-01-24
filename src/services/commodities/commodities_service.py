@@ -1,30 +1,61 @@
-import requests
-
-COMMODITY_SYMBOLS = {
-    "Weizen": "ZW=F",
-    "Öl": "CL=F",
-    "Gas": "NG=F"
-}
+import yfinance as yf
 
 def get_commodities_prices():
     """
-    Ruft die aktuellen Preise für Weizen, Öl und Gas von Yahoo Finance ab.
-    Gibt ein Dictionary zurück:
-    {
-        "Weizen": 123.45,
-        "Öl": 67.89,
-        "Gas": 4.56
-    }
-    """
-    base_url = "https://query1.finance.yahoo.com/v7/finance/quote"
-    symbols_str = ",".join(COMMODITY_SYMBOLS.values())
-    url = f"{base_url}?symbols={symbols_str}"
-    response = requests.get(url)
-    data = response.json()
+    Ruft aktuelle (bzw. leicht verzögerte) Schlusskurse 
+    zu bestimmten Commodities von Yahoo Finance ab und gibt sie zurück.
 
-    results = data.get("quoteResponse", {}).get("result", [])
-    prices = {}
-    for item in results:
-        name = [key for key, value in COMMODITY_SYMBOLS.items() if value == item.get("symbol")][0]
-        prices[name] = item.get("regularMarketPrice")
-    return prices
+    Verwendete Ticker (Stand: 2025, kann sich ändern):
+    - Sojabohnen: ZS=F (Soybeans)
+    - Kakao: CC=F (Cocoa)
+    - WTI-Öl: CL=F (Crude Oil WTI)
+    - Erdgas: NG=F (Natural Gas)
+    - Rindfleisch (Live Cattle): LE=F
+    - Arabica Kaffee: KC=F
+    - Weizen: ZW=F (Wheat)
+    """
+
+    tickers = {
+        "ZS=F": "Soybeans",
+        "CC=F": "Cocoa",
+        "CL=F": "Crude Oil WTI",
+        #"LE=F": "Live Cattle (Beef)", returned immer nan
+        "NG=F": "Natural Gas",
+        "KC=F": "Coffee (Arabica)",
+        "ZW=F": "Wheat"
+    }
+
+    # 1) Daten von Yahoo Finance herunterladen
+    data = yf.download(
+        list(tickers.keys()),
+        period="1d",      # nur den aktuellen Tag
+        interval="1d",    # täglicher Schlusskurs
+        progress=False
+    )
+
+    # 2) Letzten Schlusskurs extrahieren
+    try:
+        latest_close = data["Close"].iloc[-1]
+    except (IndexError, KeyError):
+        print("Keine Daten empfangen – Markt geschlossen oder API-Fehler?")
+        return []
+
+    # 3) Ergebnisse zusammenbauen
+    results = []
+    for ticker, name in tickers.items():
+        price = latest_close.get(ticker, None)
+        if price is None:
+            continue  # Falls Yahoo keinen Kurs für diesen Tag liefert
+        results.append({
+            "ticker": ticker,
+            "name": name,
+            "price": float(price)
+        })
+
+    return results
+
+
+if __name__ == "__main__":
+    # Zum Testen:
+    commodities_prices = get_commodities_prices()
+    print(commodities_prices)
