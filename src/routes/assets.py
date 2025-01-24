@@ -6,10 +6,13 @@ from src.services.assets_service import (
     get_latest_price_for_asset,
     get_all_assets,   
 )
+from src.extensions import cache  # Globale Cache-Instanz importieren
+
 
 assets_blueprint = Blueprint('assets', __name__)
 
 @assets_blueprint.route("/assets", methods=["GET"])
+@cache.cached(timeout=90)  # Cache für 90 Sekunden
 def get_all_assets_no_price():
     """
     Gibt alle Assets aus der Datenbank OHNE Preise zurück.
@@ -18,6 +21,7 @@ def get_all_assets_no_price():
     return jsonify(data)
 
 @assets_blueprint.route("/assets/<asset_type>", methods=["GET"])
+@cache.cached(timeout=90)
 def get_all_assets_with_price(asset_type):
     """
     Gibt alle Assets eines bestimmten Typs (z. B. 'stock', 'crypto')
@@ -27,6 +31,7 @@ def get_all_assets_with_price(asset_type):
     return jsonify(data)
 
 @assets_blueprint.route("/assets/<asset_type>/<symbol>", methods=["GET"])
+@cache.cached(timeout=90)
 def get_asset_detail(asset_type, symbol):
     """
     Gibt ein bestimmtes Asset (z. B. /assets/stock/AAPL) mit dem letzten Preis zurück.
