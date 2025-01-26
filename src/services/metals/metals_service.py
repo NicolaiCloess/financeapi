@@ -27,6 +27,7 @@ def get_metals_prices():
     # }
 
     if data.get("success"):
+        print(data)
         rates = data.get("rates", {})
         return {
             "gold_price_usd": rates.get("XAU"),

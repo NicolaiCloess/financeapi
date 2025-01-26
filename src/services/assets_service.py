@@ -113,32 +113,16 @@ def get_all_assets():
 
 def get_all_assets_with_latest_price():
     """
-    1) Holt alle Assets (ohne Filter).
-    2) Ermittelt pro Asset den zuletzt bekannten Preis.
-    3) Kombiniert alles in einem konsistenten JSON-ähnlichen Format.
+    Holt alle Assets und deren neuesten Preis in einer einzigen Abfrage.
     Gibt eine Liste von Dicts zurück.
     """
-    assets = get_all_assets()  # ALLE Assets, egal welcher Typ
-    result = []
+    response = (
+        supabase.rpc(
+            "get_assets_with_latest_price"  # Die SQL-Funktion in Supabase
+        ).execute()
+    )
 
-    for asset in assets:
-        # Letzten Preis für dieses Asset holen
-        latest_price_data = get_latest_price_for_asset(asset["asset_id"])
-        if latest_price_data:
-            price = latest_price_data["price"]
-            date_time = latest_price_data["date_time"]
-        else:
-            price = None
-            date_time = None
-
-        result.append({
-            "symbol": asset["symbol"],
-            "name": asset["name"],
-            "currency": asset["currency"],
-            "unit": asset["unit"],
-            "asset_type": asset["asset_type"],
-            "price": price,
-            "date_time": date_time
-        })
-
-    return result
+    if response.data:
+        return response.data
+    else:
+        return []

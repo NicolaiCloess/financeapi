@@ -11,5 +11,6 @@ def get_prices():
     Gibt alle Assets (stocks, crypto, commodities, etc.) zurück,
     jeweils mit dem zuletzt bekannten Preis.
     """
+    
     data = get_all_assets_with_latest_price()
     return jsonify(data)

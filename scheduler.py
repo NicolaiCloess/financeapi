@@ -181,7 +181,8 @@ def update_commodities():
 
 # Jobs hinzufügen
 scheduler.add_job(update_crypto_prices, 'interval', seconds=2678) # ca. 44 Minuten
-scheduler.add_job(update_metals_price, 'interval', seconds=13400)
+#scheduler.add_job(update_metals_price, 'interval', seconds=13400)
+scheduler.add_job(update_metals_price, 'interval', seconds=3)
 scheduler.add_job(update_currencies, 'interval', seconds=17300)  # 25 Anfragen / Tag
 scheduler.add_job(update_stocks, 'interval', seconds=115) # jede Minute 
 scheduler.add_job(update_commodities, 'interval', seconds=120)
